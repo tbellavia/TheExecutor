@@ -6,18 +6,54 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/16 06:33:37 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/16 08:17:47 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 import os
+import hashlib
 import discord
+import subprocess
+
+EXEC_CHANNEL = "777764433761271828"
 
 TOKEN = os.environ.get('DISCORD_TOKEN')
+CWD = os.getcwd()
+POLL_DIR = "poll"
 client = discord.Client()
 
-@client.event
-async def on_ready():
-	print(f"{client.user} has connected to Discord!")
+class TheExecutor(discord.Client):
+	async def on_ready(self):
+		print(f"{self.user} has connected to Discord!")
 
-client.run(TOKEN)
+	async def on_message(self, message):
+		if not os.path.exists(POLL_DIR):
+			os.mkdir(POLL_DIR)
+
+		if str(message.channel.id) == EXEC_CHANNEL:
+			if message.content.startswith("```py") and message.content.endswith("```"):
+				content = message.content[5:-3]
+				content = content.strip()
+				
+				msg_hash = hashlib.sha256(f"{message.content + str(message.id)}".encode()).hexdigest()
+				filename = f"{msg_hash}.py"
+				fullname = f"{POLL_DIR}/{filename}"
+				
+				with open(fullname, 'w') as f:
+					f.write(content)
+				
+				COMMAND = f"docker run -it --rm --name test -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/poll python:3 python {filename}"
+				process = subprocess.run(COMMAND.split(), capture_output=True)
+				
+				if process.returncode != 0:
+					result = "Error : " + process.stderr.decode() if process.stderr else process.stdout.decode()
+				else:
+					result = process.stdout.decode()
+
+				os.remove(fullname)
+
+				await message.channel.send(f"```md\n{result}\n```")
+					
+				
+
+TheExecutor().run(TOKEN)
