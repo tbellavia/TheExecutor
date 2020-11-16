@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/16 08:17:47 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/16 08:33:39 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,18 +42,19 @@ class TheExecutor(discord.Client):
 				with open(fullname, 'w') as f:
 					f.write(content)
 				
-				COMMAND = f"docker run -it --rm --name test -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/poll python:3 python {filename}"
-				process = subprocess.run(COMMAND.split(), capture_output=True)
-				
-				if process.returncode != 0:
-					result = "Error : " + process.stderr.decode() if process.stderr else process.stdout.decode()
-				else:
-					result = process.stdout.decode()
+				COMMAND = f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/poll python:3 python {filename}"
+
+				try:
+					process = subprocess.run(COMMAND.split(), capture_output=True, timeout=10)
+					if process.returncode != 0:
+						result = "Error : " + process.stderr.decode() if process.stderr else process.stdout.decode()
+					else:
+						result = process.stdout.decode()
+				except subprocess.TimeoutExpired:
+					result = "Time limit exceeded"
 
 				os.remove(fullname)
 
 				await message.channel.send(f"```md\n{result}\n```")
-					
-				
 
 TheExecutor().run(TOKEN)
