@@ -29,17 +29,25 @@ First you'll need to run :
 
 The installation will pull Docker images and install the requirements.txt modules.
 
-### API Key
-Next you have to export you API key by exporting environment variable. \
-To make change effective, you have to source your shell configuration.
+### Config
 
-#### Zsh
-```sh
-echo "export DISCORD_TOKEN=YOUR_API_KEY" >> ~/.zshrc ; source ~/.zshrc
-```
-#### Bash
-```sh
-echo "export DISCORD_TOKEN=YOUR_API_KEY" >> ~/.bashrc ; source ~/.bashrc
+To run The Executor, you have to configure config.yaml to define your **API_KEY**, **scope** and **exec**. \
+The configuration file *config.yaml* is composed of the following variables :
+
+```yaml
+exec:
+  # Timeout before script is being killed by Subprocess.
+  timeout: INT
+bot:
+  # API Key of your discord bot, see https://discord.com/developers/applications
+  API_KEY: "YOUR_DISCORD_API_KEY"
+server:
+  # Define The Executor permissions
+  scope:
+    channels:
+      - "CHANNEL_ID"
+    roles:
+      - "ROLE_NAME"
 ```
 
 ### Run
