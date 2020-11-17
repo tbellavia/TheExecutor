@@ -8,8 +8,6 @@ DARK_GRAY='\033[1;30m'
 NC='\033[0m'
 
 ARG="$1"
-IMAGE_NAME="thexecutor"
-CONTAINER_NAME="thexecutor_live"
 
 USAGE=$(
 	cat <<USAGE_STRING
@@ -17,19 +15,16 @@ USAGE=$(
 setup.sh up | down | clean --
 
 	\`up'		:
-		Build docker image and run the container as a detach process.
-
-	\`down'		:
-		Kill main container if exists.
-
-	\`clean' 	:
-		Clear docker cache.
+		Run bot.py
 
 	\`install'	:
-		Build docker image and all dependencies.
+		Pull docker image and install all python dependencies
 
 	\`setup'	:
 		Setup the Dockerfile with the API_KEY provided by the user.
+
+	\`clean'	:
+		Clean docker cache.
 
 USAGE_STRING
 )
@@ -100,69 +95,26 @@ function success() {
 	status_bar success ">>>" 2 "$1"
 }
 
-function up() {
-	if docker run -it -d --rm -v /var/run/docker.sock:/var/run/docker.sock --name "$CONTAINER_NAME" "$IMAGE_NAME" &>/dev/null; then
-
-		success "Running $CONTAINER_NAME container"
-	else
-		if docker ps | grep -q thexecutor_live; then
-			danger "Failed running $CONTAINER_NAME container already running"
-			danger "$(echo -e "\tRun the following command :")"
-			danger "$(echo -e "\t\tsetup.sh down")"
-		else
-			danger "Failed running $CONTAINER_NAME container"
-		fi
-
-		exit 1
-	fi
-
-	exit 0
-}
-
-function down() {
-
-	if docker ps | grep -q "$CONTAINER_NAME"; then
-		if docker container kill "$CONTAINER_NAME" &>/dev/null; then
-			success "Killing $CONTAINER_NAME"
-		else
-			danger "Killing $CONTAINER_NAME failed"
-			exit 1
-		fi
-	fi
-
-	exit 0
-}
-
-function clean() {
-	echo "y" | docker system prune -a
-
-	exit 0
-}
 
 function usage() {
 	echo -e "$USAGE\n"
 }
 
-function install() {
-	if [ ! -f Dockerfile ]
-	then
-		danger "Dockerfile doesn't exists."
-		danger "$(echo -e "\tRun the following command :")"
-		danger "$(echo -e "\t\tsetup.sh setup")"
-		exit 1
-	fi
-
-	if docker build -t "$IMAGE_NAME" . ; then
-		success "Build $IMAGE_NAME image"
-	else
-		danger "Failed building $IMAGE_NAME image"
-	fi
+function up() {
+	python bot.py
+	exit 0
 }
 
-function setup() {
-	read -rp "Enter discord API key : " API_KEY
-	export "DISCORD_API_KEY=$API_KEY"
-	envsubst < "Dockerfile.template" > Dockerfile
+function install() {
+	docker pull python:3
+	python -m pip install -r requirements.txt
+	exit 0
+}
+
+function clean() {
+	echo "y" | docker system prune -a
+	rm -f poll/*
+	exit 0
 }
 
 if [ -z "$1" ]; then
@@ -174,18 +126,12 @@ case "$ARG" in
 "up")
 	up
 	;;
-"down")
-	down
-	;;
 "clean")
 	clean
 	;;
 "install")
 	install
 	;;
-"setup")
-	setup
-;;
 *)
 	usage
 	exit 1

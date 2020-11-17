@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/17 05:51:47 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/17 06:31:41 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,7 +31,7 @@ class TheExecutor(discord.Client):
 
 	def execute(self, filename):
 		COMMAND = f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/{POLL_DIR} python:3 python {filename}"
-
+		print(COMMAND)
 		try:
 			process = subprocess.run(COMMAND.split(), capture_output=True, timeout=10)
 			if process.returncode != 0:
@@ -67,6 +67,9 @@ class TheExecutor(discord.Client):
 
 				await message.channel.send(f"```md\n{result}\n```")
 
-
 if TOKEN is not None:
 	TheExecutor().run(TOKEN)
+else:
+	print("You must export your API to use bot.py")
+	print("\n\techo \"export DISCORD_TOKEN=YOUR_API_KEY\" >> ~/.zshrc")
+	print()
