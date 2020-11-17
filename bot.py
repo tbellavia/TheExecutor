@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/17 08:42:43 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/17 11:06:36 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,13 +18,16 @@ import subprocess
 TOKEN			= os.environ.get('DISCORD_TOKEN')
 CWD				= os.getcwd()
 POLL_DIR		= "poll"
-EXEC_ROLE		= "execute"
+EXEC_ROLE		= "L'exécuteur"
 EXEC_CHANNELS 	= [
-	"777764433761271828",
-	"778144414437867533",
-	"778144436138934312",
-	"778144451851583498",
-	"778144467748257852"
+	"396825382009044996",
+	"434394879829868565",
+	"635116762555482112",
+	"397040921671368704",
+	"397040940415713293",
+	"497371961119342602",
+	"497373788414148609",
+	"658360594319147008"
 ]
 
 CONTEXT			= {
@@ -68,6 +71,10 @@ class TheExecutor(discord.Client):
 				result = "Error : " + process.stderr.decode() if process.stderr else process.stdout.decode()
 			else:
 				result = process.stdout.decode()
+			
+			if context['interpreter'] == "php":
+				result = result[2:]
+				
 		except subprocess.TimeoutExpired:
 			result = "Time limit exceeded"
 		
@@ -81,26 +88,27 @@ class TheExecutor(discord.Client):
 
 
 		if str(message.channel.id) in EXEC_CHANNELS and EXEC_ROLE in user_roles:
-			if message.content.startswith("```") and message.content.endswith("```"):
-				extension = message.content[3:][:3].strip()
+			content = message.content
 
-				if extension in CONTEXT.keys():
-					content = message.content[5:-3].strip()
-					
-					msg_hash = hashlib.sha256(f"{message.content + str(message.id)}".encode()).hexdigest()
-					filename = f"{msg_hash}.{extension}"
-					fullname = f"{POLL_DIR}/{filename}"
-					
-					with open(fullname, 'w') as f:
-						f.write(content)
+			if content.endswith("!run"):
+				content = content[:-4]
+				if content.startswith("```") and content.endswith("```"):
+					extension = content[3:][:3].strip()
 
-					result = self.execute(filename, CONTEXT[extension])
+					if extension in CONTEXT.keys():
+						content = content[5:-3].strip()
+						msg_hash = hashlib.sha256(f"{content + str(message.id)}".encode()).hexdigest()
+						filename = f"{msg_hash}.{extension}"
+						fullname = f"{POLL_DIR}/{filename}"
+						
+						with open(fullname, 'w') as f:
+							f.write(content)
 
-					
+						result = self.execute(filename, CONTEXT[extension])
 
-					os.remove(fullname)
+						os.remove(fullname)
 
-					await message.channel.send(f"```md\n{result}\n```")
+						await message.channel.send(f"```md\n{result}\n```")
 
 if TOKEN is not None:
 	TheExecutor().run(TOKEN)

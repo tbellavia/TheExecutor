@@ -107,6 +107,9 @@ function up() {
 
 function install() {
 	docker pull python:3
+	docker pull node
+	docker pull bash
+	docker pull php:7.4-cli
 	python -m pip install -r requirements.txt
 	exit 0
 }
