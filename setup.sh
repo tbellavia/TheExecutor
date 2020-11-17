@@ -16,14 +16,20 @@ USAGE=$(
 
 setup.sh up | down | clean --
 
-	\`up'	:
+	\`up'		:
 		Build docker image and run the container as a detach process.
 
-	\`down'	:
+	\`down'		:
 		Kill main container if exists.
 
-	\`clean' :
+	\`clean' 	:
 		Clear docker cache.
+
+	\`install'	:
+		Build docker image and all dependencies.
+
+	\`setup'	:
+		Setup the Dockerfile with the API_KEY provided by the user.
 
 USAGE_STRING
 )
@@ -138,22 +144,25 @@ function usage() {
 }
 
 function install() {
-	# Create network
-	docker network create -d bridge dockerd-network
-
-	# Build docker deamon image so my image can use it
-	docker run --privileged --name docker-deamon -d \
-		--network dockerd-network --network-alias docker \
-		-e DOCKER_TLS_CERTDIR=/certs \
-		-v docker-deamon-certs-ca:/certs/ca \
-		-v docker-deamon-certs-client:/certs/client \
-		docker:dind
+	if [ ! -f Dockerfile ]
+	then
+		danger "Dockerfile doesn't exists."
+		danger "$(echo -e "\tRun the following command :")"
+		danger "$(echo -e "\t\tsetup.sh setup")"
+		exit 1
+	fi
 
 	if docker build -t "$IMAGE_NAME" . ; then
 		success "Build $IMAGE_NAME image"
 	else
 		danger "Failed building $IMAGE_NAME image"
 	fi
+}
+
+function setup() {
+	read -rp "Enter discord API key : " API_KEY
+	export "DISCORD_API_KEY=$API_KEY"
+	envsubst < "Dockerfile.template" > Dockerfile
 }
 
 if [ -z "$1" ]; then
@@ -174,6 +183,9 @@ case "$ARG" in
 "install")
 	install
 	;;
+"setup")
+	setup
+;;
 *)
 	usage
 	exit 1
