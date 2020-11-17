@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/17 02:57:05 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/17 05:51:47 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ class TheExecutor(discord.Client):
 		print(f"{self.user} has connected to Discord!")
 
 	def execute(self, filename):
-		COMMAND = f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/poll python:3 python {filename}"
+		COMMAND = f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/{POLL_DIR} python:3 python {filename}"
 
 		try:
 			process = subprocess.run(COMMAND.split(), capture_output=True, timeout=10)
@@ -67,4 +67,6 @@ class TheExecutor(discord.Client):
 
 				await message.channel.send(f"```md\n{result}\n```")
 
-TheExecutor().run(TOKEN)
+
+if TOKEN is not None:
+	TheExecutor().run(TOKEN)
