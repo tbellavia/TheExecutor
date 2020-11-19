@@ -5,14 +5,35 @@ Scripts are executed inside Docker containers so it provide a safe execution env
 
 ## How it works
 
+### Basic
 All you have to do is [markdown](https://support.discord.com/hc/fr/articles/210298617-Bases-de-la-mise-en-forme-de-texte-Markdown-mise-en-forme-du-chat-gras-italique-soulign%C3%A9-) the code you want to execute followed by the `!run` command.
 
 Example :
-```
+```py
 ```py
 print("Hello World!")
 ```!run
 ```
+
+### File manipulation
+
+Want to manipulate file and get back the result ? \
+Simply follow the previous step and register your file to `./resources` so The Executor can easily find it and send it back to you.
+
+Example : 
+```py
+```py
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(nrows=1, ncols=1)
+ax.plot([0, 1, 2], [10, 20, 3])
+fig.savefig('resources/fig.png')
+plt.close(fig)
+```!run
+```
+
+The resulting file should be returned back to you diectly on discord ! 
+
 
 ## Config
 
