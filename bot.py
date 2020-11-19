@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/19 03:27:41 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/19 03:36:32 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -231,6 +231,17 @@ class TheExecutor(discord.Client):
 			result = result[:200]
 
 		await message.channel.send(f"```md\n{result}\n```")
+
+	async def send_picture(self, channel, filename):
+		try:
+			with open(filename, "rb") as f:
+				picture = discord.File(f)
+			await channel.send(channel, picture)
+		except FileNotFoundError:
+			print("File doesn't exists.")
+		
+
+
 
 	async def on_message(self, message):
 		if not os.path.exists(POLL_DIR):
