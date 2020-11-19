@@ -84,7 +84,11 @@ All script exceeding **TIMEOUT** are killed. You can define [Discord roles] so y
 
 ## Supports
 For now The Executor support the following languages :
-  - Python
-  - Javascript
-  - PHP
-  - Bash
+  - Interpreted :
+    - Python
+    - Javascript
+    - PHP
+    - Bash
+  - Compiled :
+    - C
+    - C++
