@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/17 12:23:00 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/19 01:21:37 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,6 @@ import yaml
 with open("config.yaml", "r") as f:
 	config = yaml.load(f, Loader=yaml.FullLoader)
 
-
 TOKEN			= config["bot"]["API_KEY"]
 CWD				= os.getcwd()
 POLL_DIR		= "poll"
@@ -28,38 +27,36 @@ EXEC_ROLES		= config["server"]["scope"]["roles"]
 EXEC_CHANNELS 	= config["server"]["scope"]["channels"]
 TIMEOUT			= int(config["exec"]["timeout"])
 
-CONTEXT			= {
-	"py" : {
-		"image"			: "python:3",
-		"interpreter"	: "python"
-	},
-	"sh" : {
-		"image"			: "bash",
-		"interpreter"	: "bash",
-	},
-	"js" : {
-		"image"			: "node",
-		"interpreter"	: "node"
-	},
-	"php" : {
-		"image"			: "php:7.4-cli",
-		"interpreter"	: "php"
-	}
-}
+with open("context.yaml", "r") as f:
+	CONTEXT = yaml.load(f, Loader=yaml.FullLoader)
 
 class TheExecutor(discord.Client):
 	async def on_ready(self):
 		print(f"{self.user} has connected to Discord!")
 
-	def get_command(self, filename, context):
-		return f"docker run -it --rm -v " \
-				f"{CWD}/{POLL_DIR}:/tmp/{POLL_DIR} " \
-				f"-w /tmp/{POLL_DIR} " \
-				f"{context['image']} " \
-				f"{context['interpreter']} {filename}"
+	def _is_exec_channel(self, channel_id):
+		return channel_id in EXEC_CHANNELS
 
-	def execute(self, filename, context):
-		command = self.get_command(filename, context)
+	def _is_exec_role(self, rolename):
+		return rolename in EXEC_ROLES
+
+	def _is_valid_executor(self, roles, channel_id):
+		is_exec = self._is_exec_channel(channel_id)
+		is_role = any(self._is_exec_role(role) for role in roles)
+		return is_exec and is_role
+
+	def _get_command(self, filename, context):
+		if context['interpreted']:
+			return f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/{POLL_DIR} {context['image']} {context['interpreter']} {filename}"
+
+	def _execute_interpreted(self):
+		return None
+
+	def _execute_compiled(self):
+		return None
+
+	def _execute(self, filename, context):
+		command = self._get_command(filename, context)
 		
 		try:
 			process = subprocess.run(command.split(), capture_output=True, timeout=TIMEOUT)
@@ -76,24 +73,19 @@ class TheExecutor(discord.Client):
 		
 		return result
 
-	def is_exec_channel(self, channel_id):
-		return channel_id in EXEC_CHANNELS
-
-	def is_exec_role(self, rolename):
-		return rolename in EXEC_ROLES
-
 	async def on_message(self, message):
 		if not os.path.exists(POLL_DIR):
 			os.mkdir(POLL_DIR)
 
-		user_roles = [role.name for role in message.author.roles]
+		roles = [role.name for role in message.author.roles]
+		channel_id = str(message.channel.id)
+		content = message.content
 
-
-		if self.is_exec_channel(str(message.channel.id)) and any(self.is_exec_role(role) for role in user_roles):
-			content = message.content
+		if self._is_valid_executor(roles, channel_id):
 
 			if content.endswith("!run"):
 				content = content[:-4]
+
 				if content.startswith("```") and content.endswith("```"):
 					extension = content[3:][:3].strip()
 
@@ -106,7 +98,7 @@ class TheExecutor(discord.Client):
 						with open(fullname, 'w') as f:
 							f.write(content)
 
-						result = self.execute(filename, CONTEXT[extension])
+						result = self._execute(filename, CONTEXT[extension])
 
 						os.remove(fullname)
 

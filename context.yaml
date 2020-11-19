@@ -1,0 +1,28 @@
+py:
+  image: python:3
+  interpreter: python
+  interpreted: true
+sh:
+  image: bash
+  interpreter: bash
+  interpreted: true
+js:
+  image: node
+  interpreter: node
+  interpreted: true
+php:
+  image: php:7.4-cli
+  interpreter: php
+  interpreted: true
+c:
+  image: gcc
+  interpreter: gcc
+  interpreted: false
+c++:
+  image: gcc
+  interpreter: g++
+  interpreted: false
+cpp:
+  image: gcc
+  interpreter: g++
+  interpreted: false
