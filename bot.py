@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/19 03:38:16 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/19 15:50:15 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,8 @@ with open("config.yaml", "r") as f:
 
 TOKEN			= config["bot"]["API_KEY"]
 CWD				= os.getcwd()
-POLL_DIR		= "poll"
+DEP_DIR			= "dep"
+RESOURCES_DIR	= f"{DEP_DIR}/resources"
 EXEC_ROLES		= config["server"]["scope"]["roles"]
 EXEC_CHANNELS 	= config["server"]["scope"]["channels"]
 TIMEOUT			= int(config["exec"]["timeout"])
@@ -115,7 +116,7 @@ class TheExecutor(discord.Client):
 		Returns:
 			[str]: The docker command.
 		"""		
-		return f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/{POLL_DIR} {context['image']} {context['interpreter']} {filename}"
+		return f"docker run -it --rm -v {CWD}/{DEP_DIR}:/tmp/{DEP_DIR} -w /tmp/{DEP_DIR} {context['image']} {context['interpreter']} {filename}"
 
 	def _execute_command(self, command):
 		"""
@@ -157,11 +158,10 @@ class TheExecutor(discord.Client):
 		Returns:
 			[str]: The result of the execution of the file.
 		"""
-		fullname = f"{POLL_DIR}/{filename}"
+		fullname = f"{DEP_DIR}/{filename}"
 		command = self._get_command(filename, context).split()
 		result, error = self._execute_command(command)
 
-		os.remove(fullname)
 		if error:
 			return result
 			
@@ -182,17 +182,15 @@ class TheExecutor(discord.Client):
 		Returns:
 			[str]: The result of the execution of the file.
 		"""
-		fullname = f"{POLL_DIR}/{filename}"
+		fullname = f"{DEP_DIR}/{filename}"
 		command = self._get_command(filename, context).split()
 		result, error = self._execute_command(command)
-
-		os.remove(fullname)
+		
 		if error:
 			return result
 
-		command = f"docker run -it --rm -v {CWD}/{POLL_DIR}:/tmp/{POLL_DIR} -w /tmp/{POLL_DIR} {context['image']} ./a.out".split()
+		command = f"docker run -it --rm -v {CWD}/{DEP_DIR}:/tmp/{DEP_DIR} -w /tmp/{DEP_DIR} {context['image']} ./a.out".split()
 		result, error = self._execute_command(command)
-		os.remove(f"{POLL_DIR}/a.out")
 
 		return result
 
@@ -220,7 +218,7 @@ class TheExecutor(discord.Client):
 	async def _exec_and_send(self, message, content, extension):
 		msg_hash = hashlib.sha256(f"{content + str(message.id)}".encode()).hexdigest()
 		filename = f"{msg_hash}.{extension}"
-		fullname = f"{POLL_DIR}/{filename}"
+		fullname = f"{DEP_DIR}/{filename}"
 		
 		with open(fullname, 'w') as f:
 			f.write(content)
@@ -230,19 +228,34 @@ class TheExecutor(discord.Client):
 		if len(result) >= 2000:
 			result = result[:200]
 
-		await message.channel.send(f"```md\n{result}\n```")
+		for filename in os.listdir(RESOURCES_DIR):
+			filename = f"{RESOURCES_DIR}/{filename}"
+			await self._send_file(message.channel, filename)
+			os.remove(filename)
+		
+		for filename in os.listdir(DEP_DIR):
+			filename = f"{DEP_DIR}/{filename}"
 
-	async def send_picture(self, channel, filename):
+			if filename != RESOURCES_DIR:
+				os.remove(filename)
+
+		if len(result) != 0:
+			await message.channel.send(f"```md\n{result}\n```")
+
+	async def _send_file(self, channel, filename):
 		try:
 			with open(filename, "rb") as f:
 				picture = discord.File(f)
-			await channel.send(channel, picture)
+			await channel.send(file=picture)
 		except FileNotFoundError:
 			print("File doesn't exists.")
 
 	async def on_message(self, message):
-		if not os.path.exists(POLL_DIR):
-			os.mkdir(POLL_DIR)
+		if not os.path.exists(DEP_DIR):
+			os.mkdir(DEP_DIR)
+
+		if not os.path.exists(RESOURCES_DIR):
+			os.mkdir(RESOURCES_DIR)
 
 		roles = [role.name for role in message.author.roles]
 		channel_id = str(message.channel.id)

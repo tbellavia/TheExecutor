@@ -1,5 +1,5 @@
 py:
-  image: python:3
+  image: python-custom
   interpreter: python
   interpreted: true
 sh:
