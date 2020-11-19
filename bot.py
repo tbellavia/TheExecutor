@@ -6,7 +6,7 @@
 #    By: bbellavi <bbellavi@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/16 06:16:50 by bbellavi          #+#    #+#              #
-#    Updated: 2020/11/19 03:11:53 by bbellavi         ###   ########.fr        #
+#    Updated: 2020/11/19 03:27:41 by bbellavi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -217,6 +217,21 @@ class TheExecutor(discord.Client):
 		
 		return "Language not supported."
 
+	async def _exec_and_send(self, message, content, extension):
+		msg_hash = hashlib.sha256(f"{content + str(message.id)}".encode()).hexdigest()
+		filename = f"{msg_hash}.{extension}"
+		fullname = f"{POLL_DIR}/{filename}"
+		
+		with open(fullname, 'w') as f:
+			f.write(content)
+
+		result = self._execute(filename, CONTEXT[extension])
+
+		if len(result) >= 2000:
+			result = result[:200]
+
+		await message.channel.send(f"```md\n{result}\n```")
+
 	async def on_message(self, message):
 		if not os.path.exists(POLL_DIR):
 			os.mkdir(POLL_DIR)
@@ -226,30 +241,14 @@ class TheExecutor(discord.Client):
 		content = message.content
 
 		if self._is_valid_executor(roles, channel_id):
-
 			if self._is_runnable(content):
 				content = content[:-4]
-
 				if self._is_markdowned(content):
 					ext_len = content.find('\n') - 3
 					extension = content[3:][:ext_len].strip()
-
 					if extension in CONTEXT.keys():
 						skip_len = len(extension) + 3
 						content = content[skip_len:-3].strip()
-
-						msg_hash = hashlib.sha256(f"{content + str(message.id)}".encode()).hexdigest()
-						filename = f"{msg_hash}.{extension}"
-						fullname = f"{POLL_DIR}/{filename}"
-						
-						with open(fullname, 'w') as f:
-							f.write(content)
-
-						result = self._execute(filename, CONTEXT[extension])
-
-						if len(result) >= 2000:
-							result = result[:200]
-
-						await message.channel.send(f"```md\n{result}\n```")
+						await self._exec_and_send(message, content, extension)
 
 TheExecutor().run(TOKEN)
