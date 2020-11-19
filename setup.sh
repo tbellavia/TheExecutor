@@ -110,6 +110,7 @@ function install() {
 	docker pull node
 	docker pull bash
 	docker pull php:7.4-cli
+	docker build -t python-custom manifests/python
 	python -m pip install -r requirements.txt
 	exit 0
 }
