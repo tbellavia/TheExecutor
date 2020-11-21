@@ -1,6 +1,7 @@
 import json
 
-class ConfigRunner():
+
+class ConfigRunner:
     def __init__(self, data=None):
         self.timeout = None
         self.resources_path = None
@@ -10,7 +11,8 @@ class ConfigRunner():
             self.load(data)
 
     def __repr__(self):
-        return f"<ConfigRunner : .timeout = {self.timeout}, .resources_path = {self.resources_path}, .snippets_path = {self.snippets_path}>"
+        return f"<ConfigRunner : .timeout = {self.timeout}, .resources_path = {self.resources_path}"\
+               ".snippets_path = {self.snippets_path}>"
 
     def __str__(self):
         return json.dumps(self.__dict__, sort_keys=True, indent=4)
