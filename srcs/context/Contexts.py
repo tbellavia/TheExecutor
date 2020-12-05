@@ -6,20 +6,20 @@ import json
 
 
 class Contexts:
-    def __init__(self, filename=None):
-        self.contexts = {}
+	def __init__(self, filename=None):
+		self.contexts = {}
 
-        if filename is not None:
-            self.load(filename)
+		if filename is not None:
+			self.load(filename)
 
-    def __repr__(self):
-        return f"<Contexts : {self.contexts}"
+	def __repr__(self):
+		return f"<Contexts : {self.contexts}"
 
-    def load(self, filename):
-        with open(filename, 'r') as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
+	def load(self, filename):
+		with open(filename, 'r') as f:
+			data = yaml.load(f, Loader=yaml.FullLoader)
 
-        for key, value in data.items():
-            container = Docker(value['image'], value['interpreter'])
-            lang_type = LangType.INTERPRETED if value['interpreted'] else LangType.COMPILED
-            self.contexts[key] = Context(key, container, lang_type)
+		for key, value in data.items():
+			container = Docker(value['image'], value['interpreter'])
+			lang_type = LangType.INTERPRETED if value['interpreted'] else LangType.COMPILED
+			self.contexts[key] = Context(key, container, lang_type)
