@@ -1,6 +1,7 @@
 from ..config.Config import Config
 from ..context.Contexts import Contexts
 from ..sender.Sender import Sender
+from ..message.Message import Message
 import discord
 
 
@@ -17,20 +18,17 @@ class Bot(discord.Client):
 
 		self.run(self.config.server.token)
 
-	def extract(self, content: str) -> str:
-		"""
-			Extract the content without backticks.
-		"""
-		pass
-
 	def exec(self, content: str) -> str:
 		pass
 
 	async def on_message(self, message):
 		chan_id = str(message.channel.id)
 
+		message = Message(message.content)
 		if chan_id in self.config.server.channels:
-			pass
+			if message.is_valid_message():
+				content = message.get_content()
+				self.exec(content)
 
 	async def on_ready(self):
 		if self.on_ready_header:
