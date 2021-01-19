@@ -7,7 +7,7 @@ class Sender:
 	CHUNK_MAX_SIZE = 2000
 	@staticmethod
 	async def send(channel: TextChannel, message: str):
-		channel.send(message)
+		await channel.send(message)
 
 	@staticmethod
 	async def send_file(channel: TextChannel, filename: str):

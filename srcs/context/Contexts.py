@@ -15,7 +15,7 @@ class Contexts:
 	def __repr__(self):
 		return f"<Contexts : {self.contexts}"
 
-	def load(self, filename):
+	def load(self, filename: str):
 		with open(filename, 'r') as f:
 			data = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -23,3 +23,6 @@ class Contexts:
 			container = Docker(value['image'], value['interpreter'])
 			lang_type = LangType.INTERPRETED if value['interpreted'] else LangType.COMPILED
 			self.contexts[key] = Context(key, container, lang_type)
+	
+	def get_context(self, extension: str) -> Context:
+		return (self.contexts.get(extension))
