@@ -28,7 +28,6 @@ class Bot(discord.Client):
 		if chan_id in self.config.server.channels:
 			if message.is_valid_message():
 				content = message.get_content()
-				self.exec(content)
 
 	async def on_ready(self):
 		if self.on_ready_header:
