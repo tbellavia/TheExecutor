@@ -2,7 +2,7 @@ from ..config.Config import Config
 from ..context.Contexts import Contexts
 from ..sender.Sender import Sender
 from ..message.Message import Message
-from ..runner.Runner import Runner
+from ..runner.InterpretedRunner import InterpretedRunner
 from ..types.Errors import *
 import discord
 
@@ -28,7 +28,7 @@ class Bot(discord.Client):
 		if context is None:
 			return Errors.EXT_NOT_SUPPORTED.value
 		else:
-			pass
+			runner = InterpretedRunner(content, self.config, context)
 
 	async def on_message(self, discord_message):
 		chan_id = str(discord_message.channel.id)
