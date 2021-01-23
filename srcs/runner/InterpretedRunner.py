@@ -4,8 +4,8 @@ from ..context.Context import Context
 
 
 class InterpretedRunner(Runner):
-	def __init__(self, _input: str, config: Config, context: Context):
-		super().__init__(_input, config, context)
-	
+	def __init__(self, content: str, config: Config, context: Context):
+		super().__init__(content, config, context)
+
 	def run(self) -> str:
-		pass
+		self._write_snippet()
