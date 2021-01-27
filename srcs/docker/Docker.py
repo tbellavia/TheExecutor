@@ -74,12 +74,11 @@ class Docker:
 
 		return self.command
 
-	def run(self) -> str:
+	def run(self, timeout=10) -> str:
 		command = self._cmd_build("run")
-		output = ""
-
+		
 		try:
-			process = subprocess.run(command, capture_output=True, timeout=5)
+			process = subprocess.run(command, capture_output=True, timeout=timeout)
 
 			if process.returncode != 0:
 				if process.stderr:

@@ -1,7 +1,8 @@
 class Context:
-	def __init__(self, extension, container, lang_type):
+	def __init__(self, extension, image, entrypoint, lang_type):
 		self.extension = extension
-		self.container = container
+		self.image = image
+		self.entrypoint = entrypoint
 		self.lang_type = lang_type
 
 	def __repr__(self):

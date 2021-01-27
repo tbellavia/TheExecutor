@@ -20,9 +20,10 @@ class Contexts:
 			data = yaml.load(f, Loader=yaml.FullLoader)
 
 		for key, value in data.items():
-			container = Docker(value['image'], value['interpreter'])
+			image = value['image']
+			entrypoint = value['entrypoint']
 			lang_type = LangType.INTERPRETED if value['interpreted'] else LangType.COMPILED
-			self.contexts[key] = Context(key, container, lang_type)
+			self.contexts[key] = Context(key, image, entrypoint, lang_type)
 	
 	def get_context(self, extension: str) -> Context:
 		return (self.contexts.get(extension))

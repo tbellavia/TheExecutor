@@ -48,6 +48,9 @@ class Runner(ABC):
 		with open(self.fullpath, "w") as f:
 			f.write(self.content)
 
+	def _remove_snippet(self):
+		os.remove(self.fullpath)
+
 	@abstractmethod
 	def run(self) -> str:
 		pass

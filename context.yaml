@@ -1,28 +1,28 @@
 py:
   image: python-custom
-  interpreter: python
+  entrypoint: python
   interpreted: true
 sh:
   image: bash
-  interpreter: bash
+  entrypoint: bash
   interpreted: true
 js:
   image: node
-  interpreter: node
+  entrypoint: node
   interpreted: true
 php:
   image: php:7.4-cli
-  interpreter: php
+  entrypoint: php
   interpreted: true
 c:
   image: gcc
-  interpreter: gcc
+  entrypoint: gcc
   interpreted: false
 c++:
   image: gcc
-  interpreter: g++
+  entrypoint: g++
   interpreted: false
 cpp:
   image: gcc
-  interpreter: g++
+  entrypoint: g++
   interpreted: false

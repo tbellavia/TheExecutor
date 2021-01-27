@@ -6,4 +6,4 @@ import os
 
 conf = Config("config.yaml")
 cts = Contexts("context.yaml")
-# bot = Bot(conf, cts)
+bot = Bot(conf, cts)

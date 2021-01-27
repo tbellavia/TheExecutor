@@ -29,8 +29,8 @@ class Bot(discord.Client):
 			return Errors.EXT_NOT_SUPPORTED.value
 		else:
 			runner = InterpretedRunner(content, self.config, context)
-			runner.run()
-		return "bite"
+			return runner.run()
+		return Errors.EXT_NOT_SUPPORTED.value
 
 	async def on_message(self, discord_message):
 		chan_id = str(discord_message.channel.id)
