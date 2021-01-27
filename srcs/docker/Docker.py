@@ -1,4 +1,8 @@
 from .DockerOpts import DockerOpts
+from ..types.Errors import Errors
+import subprocess
+
+CMD_INITIALIZER = ["docker"]
 
 class Docker:
 	def __init__(self, image, entrypoint=None, **kwargs):
@@ -6,9 +10,9 @@ class Docker:
 		self.entrypoint = entrypoint
 		self.volumes = kwargs.get('volumes')
 		self.env = kwargs.get('env')
-		self.command = ["docker"]
-		self.workspace = kwargs.get('workspace')
-		self.remove = kwargs.get('remove')
+		self.command = CMD_INITIALIZER
+		self.workdir = kwargs.get('workdir')
+		self.remove = kwargs.get('remove', True)
 
 	def _cmd_build(self, option):
 
@@ -46,6 +50,16 @@ class Docker:
 				self.command.append(DockerOpts.VOLUME.value)
 				self.command.append(f"{key}:{val}")
 
+		if self.workdir is not None:
+			#
+			# Here we are defining working directory
+			# of the container.
+			#
+			assert(isinstance(self.workdir, str))
+
+			self.command.append(DockerOpts.WORKDIR.value)
+			self.command.append(self.workdir)
+
 		assert(isinstance(self.image, str))
 		self.command.append(self.image)
 
@@ -54,9 +68,31 @@ class Docker:
 			#	Entrypoint is the entrypoint command.
 			# 
 			assert(isinstance(self.entrypoint, str))
-			self.command.append(self.entrypoint)
 
-		return " ".join(self.command)
+			for command in self.entrypoint.split():
+				self.command.append(command)
 
-	def run(self):
-		cmd = self._cmd_build("run")
+		return self.command
+
+	def run(self) -> str:
+		command = self._cmd_build("run")
+		output = ""
+
+		try:
+			process = subprocess.run(command, capture_output=True, timeout=5)
+
+			if process.returncode != 0:
+				if process.stderr:
+					error = process.stderr.decode()
+				else:
+					error = process.stdout.decode()
+
+				output = f"Error : {error}"
+			else:
+				output = process.stdout.decode()
+
+		except subprocess.TimeoutExpired:
+			output = Errors.TIMEOUT_EXPIRED.value
+		
+		self.command = CMD_INITIALIZER
+		return output
