@@ -1,6 +1,8 @@
 .vscode
 config.yaml
 
+.out
+
 */__pycache__
 */*/__pycache__
 */*/*/__pycache__
