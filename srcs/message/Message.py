@@ -15,7 +15,7 @@ class Message:
 		if self.is_valid_message():
 			newline = self.message.find(NEWLINE)
 			content = self.message[ newline + 1: ]
-			content = content.replace( f"{BACKTICKS}{RUN_CMD}", "" ).replace( NEWLINE, "" )
+			content = content.replace( f"{BACKTICKS}{RUN_CMD}", "" )
 			self.content = content
 			return self.content
 		self.content = None

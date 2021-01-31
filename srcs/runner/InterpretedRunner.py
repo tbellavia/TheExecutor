@@ -13,7 +13,7 @@ class InterpretedRunner(Runner):
 		self._write_snippet()
 
 		entrypoint = f"{self.context.entrypoint} {self.filename}"
-		print(entrypoint)
+		# print(entrypoint)
 		#
 		# As we can't pass a relative path for docker volume,
 		# the context file must contain absolute path.
@@ -33,5 +33,5 @@ class InterpretedRunner(Runner):
 
 		output = docker.run(timeout=self.config.runner.timeout)
 
-		# self._remove_snippet()
+		self._remove_snippet()
 		return output

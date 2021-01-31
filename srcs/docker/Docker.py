@@ -10,9 +10,12 @@ class Docker:
 		self.entrypoint = entrypoint
 		self.volumes = kwargs.get('volumes')
 		self.env = kwargs.get('env')
-		self.command = CMD_INITIALIZER
+		self._set_command()
 		self.workdir = kwargs.get('workdir')
 		self.remove = kwargs.get('remove', True)
+
+	def _set_command(self):
+		self.command = ["docker"]
 
 	def _cmd_build(self, option):
 
@@ -76,7 +79,7 @@ class Docker:
 
 	def run(self, timeout=10) -> str:
 		command = self._cmd_build("run")
-		
+
 		try:
 			process = subprocess.run(command, capture_output=True, timeout=timeout)
 
@@ -92,6 +95,6 @@ class Docker:
 
 		except subprocess.TimeoutExpired:
 			output = Errors.TIMEOUT_EXPIRED.value
-		
-		self.command = CMD_INITIALIZER
+
+		self._set_command()
 		return output
