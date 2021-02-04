@@ -1,10 +1,11 @@
-from ..runner.Runner import Runner
 from ..config.Config import Config
 from ..context.Context import Context
-from ..docker.Docker import Docker
 from ..types.Defines import RunnerDefs
+from ..docker.Docker import Docker
+from .Runner import Runner
 
-class InterpretedRunner(Runner):
+
+class CompiledRunner(Runner):
 	def __init__(self, content: str, config: Config, context: Context):
 		super().__init__(content, config, context)
 
@@ -12,26 +13,24 @@ class InterpretedRunner(Runner):
 		self._build_filename()
 		self._write_snippet()
 
+		# Command to be exectued into the docker container
 		entrypoint = f"{self.context.entrypoint} {self.filename}"
 
-		#
-		# As we can't pass a relative path for docker volume,
-		# the context file must contain absolute path.
-		# 
 		volumes = {
 			self.config.runner.snippets_path : RunnerDefs.WORKDIR.value,
 			self.config.runner.resources_path : RunnerDefs.RESOURCES.value
 		}
+
 		workdir = RunnerDefs.WORKDIR.value
 
 		docker = Docker(
 			self.context.image,
-			entrypoint=entrypoint,
+			entrypoin=entrypoint,
 			volumes=volumes,
-			workdir=workdir
+			workdir=workdir,
 		)
 
 		output = docker.run(timeout=self.config.runner.timeout)
 
-		self._remove_snippet()
-		return output
+		# self._remove_snippet()
+		return "xxx"
