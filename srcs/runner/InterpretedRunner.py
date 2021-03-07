@@ -4,6 +4,7 @@ from ..context.Context import Context
 from ..docker.Docker import Docker
 from ..types.Defines import RunnerDefs
 
+
 class InterpretedRunner(Runner):
 	def __init__(self, content: str, config: Config, context: Context):
 		super().__init__(content, config, context)
@@ -13,7 +14,7 @@ class InterpretedRunner(Runner):
 		self._write_snippet()
 
 		entrypoint = f"{self.context.entrypoint} {self.filename}"
-		# print(entrypoint)
+
 		#
 		# As we can't pass a relative path for docker volume,
 		# the context file must contain absolute path.
