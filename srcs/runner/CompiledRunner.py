@@ -13,7 +13,7 @@ class CompiledRunner(Runner):
 		self._build_filename()
 		self._write_snippet()
 
-		# Command to be exectued into the docker container
+		# Command to be executed into the docker container
 		entrypoint = f"{self.context.entrypoint} {self.filename}"
 
 		volumes = {
@@ -33,4 +33,4 @@ class CompiledRunner(Runner):
 		output = docker.run(timeout=self.config.runner.timeout)
 
 		# self._remove_snippet()
-		return "xxx"
+		return output

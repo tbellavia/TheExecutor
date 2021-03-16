@@ -2,7 +2,6 @@ from .DockerOpts import DockerOpts
 from ..types.Errors import Errors
 import subprocess
 
-CMD_INITIALIZER = ["docker"]
 
 class Docker:
 	def __init__(self, image, entrypoint=None, **kwargs):
@@ -22,20 +21,20 @@ class Docker:
 		# Docker command usage is :
 		#		docker [OPTIONS] COMMAND
 		# So we firstly need to define docker option
-		# Then we define the command to be runned by docker API.
-		
+		# Then we define the command to be run by docker API.
+
 		self.command.append(option)
 
 		if self.remove is not None:
 			assert(isinstance(self.remove, bool))
-			if self.remove == True:
+			if self.remove:
 				self.command.append(DockerOpts.DELETE.value)
 
 		if self.env is not None:
-			# 
+			#
 			# Here we are defining our environments as a dict
 			# who's composed of key value pairs just as docker.
-			# 
+			#
 			assert(isinstance(self.env, dict))
 
 			for key, val in self.env.items():
@@ -43,7 +42,7 @@ class Docker:
 				self.command.append(f"{key}={val}")
 
 		if self.volumes is not None:
-			# 
+			#
 			# Here we are defining our volumes as a dict
 			# who's composed of key value pairs just as docker.
 			#
@@ -67,9 +66,9 @@ class Docker:
 		self.command.append(self.image)
 
 		if self.entrypoint is not None:
-			# 
+			#
 			#	Entrypoint is the entrypoint command.
-			# 
+			#
 			assert(isinstance(self.entrypoint, str))
 
 			for command in self.entrypoint.split():

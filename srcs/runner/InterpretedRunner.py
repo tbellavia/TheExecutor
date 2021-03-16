@@ -4,6 +4,7 @@ from ..context.Context import Context
 from ..docker.Docker import Docker
 from ..types.Defines import RunnerDefs
 
+
 class InterpretedRunner(Runner):
 	def __init__(self, content: str, config: Config, context: Context):
 		super().__init__(content, config, context)

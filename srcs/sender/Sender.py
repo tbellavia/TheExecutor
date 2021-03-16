@@ -3,8 +3,10 @@ from discord import TextChannel
 import discord
 import math
 
+
 class Sender:
 	CHUNK_MAX_SIZE = 2000
+
 	@staticmethod
 	async def send(channel: TextChannel, message: str):
 		await channel.send(message)

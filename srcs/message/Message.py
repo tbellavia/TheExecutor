@@ -1,5 +1,5 @@
 from ..types.Defines import *
-from ..context.Context import Context
+
 
 class Message:
 	def __init__(self, message: str):
