@@ -17,8 +17,8 @@ class Bot(discord.Client):
 		self.name = kwargs.get("name")
 		self.on_ready_header = kwargs.get("header")
 
-		assert not (config == None), "config must not be equal to None"
-		assert not (contexts == None), "contexts must not be equal to None"
+		assert not (config is None), "config must not be equal to None"
+		assert not (contexts is None), "contexts must not be equal to None"
 
 		self.run(self.config.server.token)
 
@@ -36,6 +36,7 @@ class Bot(discord.Client):
 				runner = CompiledRunner(content, self.config, context)
 			else:
 				return Errors.EXT_NOT_SUPPORTED.value
+
 			return runner.run()
 
 	async def on_message(self, discord_message):
